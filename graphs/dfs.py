@@ -51,9 +51,9 @@ class DepthFirstPaths:
     @property
     def path_tree(self):
         """
-        返回搜索树数组的副本
+        返回搜索路径的生成树
         """
-        return self.__edge_to.copy()
+        return tuple(self.__edge_to)
 
 
 if __name__ == "__main__":
