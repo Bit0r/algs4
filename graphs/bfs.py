@@ -20,7 +20,7 @@ class BreathFirstPaths:
 
     def __bfs(self):
         """
-        以s为起点，进行深度优先搜索
+        以s为起点，进行广度优先搜索
         """
         q = deque()
         self.__marked[self.__s] = True

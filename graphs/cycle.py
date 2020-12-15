@@ -15,7 +15,7 @@ class Cycle:
         self.__G = G
 
         # 对所有的极大连通子图进行搜索
-        for v in range(G.number_of_nodes()):
+        for v in G.nodes:
             if not self.__marked[v]:
                 self.__dfs(v, v)
 

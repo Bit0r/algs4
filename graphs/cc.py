@@ -16,7 +16,7 @@ class CC:
         self.__component = [None] * G.number_of_nodes()
         self.__count = 0
 
-        for v in range(G.number_of_nodes()):
+        for v in G.nodes:
             if not self.__marked[v]:
                 self.__dfs(v)
                 self.__count += 1
