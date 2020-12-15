@@ -34,6 +34,7 @@ class Cycle:
         for w in self.__G[v]:
             if not self.__marked[w]:
                 self.__dfs(w, v)
+            # 在一个无向无环图中，已被标记的邻居一定是搜索路径的上一个顶点
             elif w != u:
                 self.__has_cycle = True
 
