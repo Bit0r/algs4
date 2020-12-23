@@ -1,21 +1,32 @@
 from collections import deque
+from os import name
 
 
 class Graph:
     """
     领接表实现的图
     """
-    def __init__(self, filename):
+    def __init__(self, filename: str = None, V: int = 0):
         """
-        从一个文件中读取一幅图
+        从一个文件中读取一幅图，或者构造一个空图
         """
-        with open(filename) as f:
-            self.V, self.E = int(f.readline().strip()), 0
-            self.adj = tuple(map(lambda _: deque(), range(self.V)))
+        if V != 0:
+            self.__init_adj(V)
+            return
 
-            E = int(f.readline().strip())
+        with open(filename) as f:
+            self.__init_adj(int(f.readline()))
+
+            E = int(f.readline())
             for i in range(E):
-                self.add_edge(*map(int, f.readline().strip().split()))
+                self.add_edge(*map(int, f.readline().split()))
+
+    def __init_adj(self, V: int):
+        """
+        初始化领接表
+        """
+        self.V, self.E = V, 0
+        self.adj = tuple(map(lambda _: deque(), range(self.V)))
 
     def add_edge(self, v: int, w: int):
         """
@@ -67,7 +78,7 @@ class Graph:
 
 
 if __name__ == '__main__':
-    g = Graph('tinyG.txt')
+    g = Graph(filename='tinyG.txt')
     print(g)
     print(g.degree(1))
     print(g.max_degree)
