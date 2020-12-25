@@ -1,45 +1,6 @@
-class Edge:
-    """
-    带权边的类
-    """
-    def __init__(self, v: int, w: int, weight: float):
-        """
-        设置边的顶点和权重
-        """
-        self.__v, self.__w, self.weight = v, w, weight
-
-    @property
-    def either(self):
-        """
-        获得边的任意一个顶点
-        """
-        return self.__v
-
-    def other(self, v: int):
-        """
-        已经知道边的一个顶点v，获取另一个顶点w
-        """
-        return self.__w if v == self.__v else self.__v
-
-    def __str__(self):
-        """
-        边的文字表示
-        """
-        return f'{self.__v}-{self.__w} {self.weight:.2f}'
-
-    def __cmp__(self, other):
-        """
-        比较两条边的权重
-        """
-        if self.weight < other.weight:
-            return -1
-        elif self.weight > other.weight:
-            return 1
-        else:
-            return 0
-
-
 from collections import deque
+
+from .edge import Edge
 
 
 class WeightedGraph:
