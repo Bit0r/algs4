@@ -1,11 +1,11 @@
 from collections import deque
 
-from .edge import Edge
+from .directed_edge import DirectedEdge
 
 
-class WeightedGraph:
+class WeightedDigraph:
     """
-    带权重的图
+    带权重的有向图
     """
     def __init__(self, V: int = 0, filename: str = None):
         """
@@ -24,7 +24,7 @@ class WeightedGraph:
                 v, w, weight = file.readline().split()
                 v, w = int(v), int(w)
                 weight = float(weight)
-                self.add_edge(Edge(v, w, weight))
+                self.add_edge(DirectedEdge(v, w, weight))
 
     def __init_adj(self, V: int):
         """
@@ -33,26 +33,21 @@ class WeightedGraph:
         self.V, self.E = V, 0
         self.adj = tuple(map(lambda _: deque(), range(V)))
 
-    def add_edge(self, e: Edge):
+    def add_edge(self, e: DirectedEdge):
         """
-        添加一条边到图
+        添加一条有向边到图
         """
-        v = e.either
-        w = e.other(v)
-
-        self.adj[v].append(e)
-        self.adj[w].append(e)
+        self.adj[e.v].append(e)
         self.E += 1
 
     @property
     def edges(self):
         """
-        图中的所有边
+        返回所有有向边
         """
         for v in range(self.V):
             for e in self.adj[v]:
-                if e.other(v) > v:
-                    yield e
+                yield e
 
     def __str__(self):
         """
@@ -63,13 +58,13 @@ class WeightedGraph:
         for v in range(self.V):
             string_v = f'{v} : '
             for e in self.adj[v]:
-                string_v += f'{e.other(v)} {e.weight:.2f}, '
+                string_v += f'{e.w} {e.weight:.2f}, '
             string += string_v[:-2] + '\n'
 
         return string
 
 
 if __name__ == "__main__":
-    WG = WeightedGraph(filename='tinyEWG.txt')
-    print(*map(str, WG.edges), sep='\n')
-    print(WG)
+    WDG = WeightedDigraph(filename='tinyEWD.txt')
+    print(*map(str, WDG.edges), sep='\n')
+    print(WDG)
