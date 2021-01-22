@@ -1,6 +1,14 @@
 from __future__ import annotations
 
+import builtins
 from collections import deque
+
+
+def len(obj):
+    if obj:
+        return builtins.len(obj)
+    else:
+        return 0
 
 
 class BST:
@@ -22,11 +30,14 @@ class BST:
             """
             self.key, self.value, self.count, self.left, self.right = key, value, count, left, right
 
+        def __len__(self):
+            return self.count
+
     def __init__(self):
         self.root = None
 
     def __len__(self):
-        return self.root.count
+        return len(self.root)
 
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -159,12 +170,12 @@ class BST:
         """
         找出排名为k的键
         """
-        if self.root is None or self.root.count < k or k < 1:
+        if len(self) < k or k < 1:
             raise IndexError('index out of range')
 
         cur = self.root
         while True:
-            t = cur.left.count + 1 if cur.left else 1
+            t = len(cur.left) + 1
             if k < t:
                 cur = cur.left
             elif k > t:
@@ -179,7 +190,7 @@ class BST:
         """
         cur, k = self.root, 0
         while cur:
-            t = cur.left.count + 1 if cur.left else 1
+            t = len(cur.left) + 1
             if key < cur.key:
                 cur = cur.left
             elif key > cur.key:
@@ -267,6 +278,19 @@ class BST:
 
         none_count = 0
 
+        def __draw_edge(node0: self.Node, node1: self.Node):
+            """
+            画一条从node0到node1边
+            """
+            nonlocal none_count
+            if node1:
+                G.add_edge(node0.key, node1.key)
+            else:
+                none_node = f'None{none_count}'
+                G.add_node(none_node, shape='point')
+                G.add_edge(node0.key, none_node)
+                none_count += 1
+
         def __draw(root: self.Node):
             """
             画出以root为根的子树
@@ -274,22 +298,9 @@ class BST:
             if root is None:
                 return
 
-            nonlocal none_count
             __draw(root.left)
-            if root.left:
-                G.add_edge(root.key, root.left.key)
-            else:
-                none_node = f'None{none_count}'
-                G.add_node(none_node, shape='point')
-                G.add_edge(root.key, none_node)
-                none_count += 1
-            if root.right:
-                G.add_edge(root.key, root.right.key)
-            else:
-                none_node = f'None{none_count}'
-                G.add_node(none_node, shape='point')
-                G.add_edge(root.key, none_node)
-                none_count += 1
+            __draw_edge(root, root.left)
+            __draw_edge(root, root.right)
             __draw(root.right)
 
         __draw(self.root)
