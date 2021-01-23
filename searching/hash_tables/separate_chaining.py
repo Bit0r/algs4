@@ -2,9 +2,9 @@ from collections import deque
 
 
 class SeparateChaining:
-    def __init__(self, m=4):
-        self._m, self._n = m, 0
-        self._st = list(map(lambda _: deque(), range(m)))
+    def __init__(self, capacity=4):
+        self._m, self._n = capacity, 0
+        self._st = list(map(lambda _: deque(), range(capacity)))
 
     def __hash(self, key):
         # h = hash(key)
@@ -36,7 +36,7 @@ class SeparateChaining:
                 pair[1] = value
                 break
         else:
-            ls.appendleft((key, value))
+            ls.appendleft([key, value])
             self._n += 1
 
     def __delitem__(self, key):
@@ -53,9 +53,10 @@ class SeparateChaining:
         else:
             raise KeyError(key)
         del ls[i]
+        self._n -= 1
 
         if self._m > 4 and 4 * self._n <= self._m:
-            self.__resize(self._m / 2)
+            self.__resize(self._m // 2)
 
     def __iter__(self):
         for ls in self._st:
@@ -69,8 +70,8 @@ class SeparateChaining:
         except KeyError:
             return False
 
-    def __resize(self, m):
-        tmp = SeparateChaining(m)
+    def __resize(self, capacity):
+        tmp = SeparateChaining(capacity)
         for ls in self._st:
             for k, v in ls:
                 tmp[k] = v
@@ -84,6 +85,13 @@ if __name__ == "__main__":
     for k in st:
         print(k, st[k])
 
+    print('\n', st._m, st._n)
+    for ls in st._st:
+        print(ls)
+
+    for k in 'EXARCH':
+        del st[k]
+    st['S'] = 8
     print('\n', st._m, st._n)
     for ls in st._st:
         print(ls)
