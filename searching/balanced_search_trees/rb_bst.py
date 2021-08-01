@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import builtins
 from collections import deque
+from dataclasses import dataclass
+from typing import Any
 
 
 def len(obj):
@@ -17,23 +19,19 @@ class RedBlackBST:
     """
     RED, BLACK = True, False
 
+    @dataclass
     class Node:
         """
         红黑树的结点
         """
-        def __init__(
-            self,
-            key,  # 结点的键
-            value,  # 结点的值
-            left: RedBlackBST.Node = None,  # 左子结点
-            right: RedBlackBST.Node = None,  # 右子结点
-            count: int = 1,  # 子树大小
-            color: bool = True  # 父链接的颜色
-        ):
-            self.key, self.value, self.left, self.right, self.count, self.color = key, value, left, right, count, color
+        key: Any  # 结点的键
+        value: Any  # 结点的值
+        left: RedBlackBST.Node = None  # 左子结点
+        right: RedBlackBST.Node = None  # 右子结点
+        count: int = 1  # 子树大小
+        color: bool = True  # 父链接的颜色
 
-        def __len__(self):
-            return self.count
+        __len__ = lambda self: self.count
 
     @staticmethod
     def __is_red(node: Node):
@@ -90,8 +88,7 @@ class RedBlackBST:
     def __init__(self):
         self.root = None
 
-    def __len__(self):
-        return len(self.root)
+    __len__ = lambda self: len(self.root)
 
     def __setitem__(self, key, value):
         new_node = self.Node(key, value)

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import builtins
 from collections import deque
+from dataclasses import dataclass
+from typing import Any
 
 
 def len(obj):
@@ -15,33 +17,26 @@ class BST:
     """
     二叉搜索树
     """
+    @dataclass
     class Node:
         """
         二叉搜索树的结点类
         """
-        def __init__(self,
-                     key,
-                     value,
-                     count: int = 1,
-                     left: BST.Node = None,
-                     right: BST.Node = None):
-            """
-            构造一个结点
-            """
-            self.key, self.value, self.count, self.left, self.right = key, value, count, left, right
+        key: Any
+        value: Any
+        count: int = 1
+        left: BST.Node = None
+        right: BST.Node = None
 
-        def __len__(self):
-            return self.count
+        __len__ = lambda self: self.count
 
     def __init__(self):
         self.root = None
 
-    def __len__(self):
-        return len(self.root)
+    __len__ = lambda self: len(self.root)
 
     def __getitem__(self, key):
         if isinstance(key, slice):
-            queue = deque()
             start, stop = key.start, key.stop
 
             def getkeys(root: self.Node):
@@ -52,14 +47,13 @@ class BST:
                     return
 
                 if start < root.key:
-                    getkeys(root.left)
+                    yield from getkeys(root.left)
                 if start <= root.key <= stop:
-                    queue.append(root.key)
+                    yield root.key
                 if stop > root.key:
-                    getkeys(root.right)
+                    yield from getkeys(root.right)
 
-            getkeys(self.root)
-            return iter(queue)
+            return getkeys(self.root)
 
         cur = self.root
         while cur:
@@ -255,8 +249,6 @@ class BST:
             parent.count -= 1
 
     def __iter__(self):
-        queue = deque()
-
         def __iter(root: self.Node):
             """
             将以root为根的树按照中序遍历入队
@@ -264,12 +256,11 @@ class BST:
             if root is None:
                 return
 
-            __iter(root.left)
-            queue.append(root.key)
-            __iter(root.right)
+            yield from __iter(root.left)
+            yield root.key
+            yield from __iter(root.right)
 
-        __iter(self.root)
-        return iter(queue)
+        return __iter(self.root)
 
     def draw(self, filename='bst.png'):
         from pygraphviz import AGraph
