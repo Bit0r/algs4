@@ -25,9 +25,7 @@ class DijkstraSP:
         pq = pqdict(dict(enumerate(self.dist_to)))
 
         # 循环弹出距离最近的顶点和距离
-        for v, min_dist in pq.popitems():
-            self.dist_to[v] = min_dist
-
+        for v in pq.popkeys():
             # 将最小生成树的边的颜色改为红色
             if v != s:
                 u = self.__edge_to[v]
