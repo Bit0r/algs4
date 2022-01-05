@@ -11,42 +11,38 @@ class DijkstraSP:
     """
     def __init__(self, DG: nx.DiGraph, s: int):
         """
-        初始化图和距离数组
+        dijkstra 算法
         """
         self.__DG = DG
         self.__s = s
-        V = DG.number_of_nodes()
+        n = DG.number_of_nodes()
 
-        self.__edge_to = [None] * V
-        self.dist_to = [float('inf')] * V
-
-        # 将顶点s的初始距离设为0，同时将顶点0入队
+        self.__edge_to = [None] * n
+        self.dist_to = [float('inf')] * n
         self.dist_to[s] = 0
-        self.pq = pqdict({s: 0})
 
-        # 在优先队列不为空时循环，理由见命题R
-        while self.pq:
-            v = self.pq.pop()
+        # 将距离向量建堆
+        pq = pqdict(dict(enumerate(self.dist_to)))
+
+        # 循环弹出距离最近的顶点和距离
+        for v, min_dist in pq.popitems():
+            self.dist_to[v] = min_dist
 
             # 将最小生成树的边的颜色改为红色
             if v != s:
                 u = self.__edge_to[v]
                 self.__DG[u][v]['color'] = 'red'
 
-            self.__relax(v)
+            # 缩短 v 所有的邻居 w 的距离
+            for w in self.__DG[v]:
+                new_dist = self.dist_to[v] + self.__DG[v][w]['weight']
+                if new_dist < self.dist_to[w]:
+                    # 更新w的入边和距离
+                    pq[w] = new_dist
+                    self.dist_to[w], self.__edge_to[w] = new_dist, v
 
         # 断言条件
         assert self.__check()
-
-    def __relax(self, v: int):
-        """
-        放松顶点v的全部有向边v->w
-        """
-        for w in self.__DG[v]:
-            if self.dist_to[w] > self.dist_to[v] + self.__DG[v][w]['weight']:
-                self.dist_to[w] = self.dist_to[v] + self.__DG[v][w]['weight']
-                self.__edge_to[w] = v
-                self.pq[w] = self.dist_to[w]
 
     def path_to(self, v: int):
         """
@@ -64,7 +60,7 @@ class DijkstraSP:
 
     def __check(self):
         """
-        检查每一条从v到w有向边e是否符合：
+        检查每一条从v到w有向边e是否符合:
             dist_to[w] <= dist_to[v] + e.weight
         """
         for v, w in self.__DG.edges:
