@@ -14,12 +14,11 @@ class SCC:
     def dfs(self,
             DG: nx.DiGraph,
             seq=None,
-            visited=None,
             init=None,
             previsit=None,
             postvisit=None):
 
-        visited = visited if visited else [False] * DG.number_of_nodes()
+        visited = [False] * DG.number_of_nodes()
 
         def explore(v):
             visited[v] = True
@@ -52,13 +51,7 @@ class SCC:
 
     def getpost(self, DG: nx.DiGraph):
         post = [None] * DG.number_of_nodes()
-        visited = [False] * DG.number_of_nodes()
         clock = 0
-
-        def init(_):
-            nonlocal clock, visited
-            clock = 0
-            visited[:] = [False] * DG.number_of_nodes()
 
         def previsit(_):
             nonlocal clock
@@ -68,11 +61,7 @@ class SCC:
             previsit(v)
             post[v] = clock
 
-        self.dfs(DG,
-                 visited=visited,
-                 init=init,
-                 previsit=previsit,
-                 postvisit=postvisit)
+        self.dfs(DG, previsit=previsit, postvisit=postvisit)
         return post
 
 
