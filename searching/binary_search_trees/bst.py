@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import builtins
-from collections import deque
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 
 def len(obj):
@@ -30,6 +29,9 @@ class BST:
 
         __len__ = lambda self: self.count
 
+        def update(self):
+            self.count = 1 + len(self.left) + len(self.right)
+
     def __init__(self):
         self.root = None
 
@@ -39,7 +41,7 @@ class BST:
         if isinstance(key, slice):
             start, stop = key.start, key.stop
 
-            def getkeys(root: self.Node):
+            def getkeys(root: BST.Node):
                 """
                 按照键大小，利用中序遍历入队
                 """
@@ -72,26 +74,30 @@ class BST:
             self.root = new_node
             return
 
-        stack = deque()
+        path = []
         cur = self.root
         while cur:
+            path.append(cur)
             if key < cur.key:
-                stack.appendleft(cur)
                 cur = cur.left
             elif key > cur.key:
-                stack.appendleft(cur)
                 cur = cur.right
             else:
                 cur.value = value
                 return
 
-        if key < stack[0].key:
-            stack[0].left = new_node
+        if key < path[-1].key:
+            path[-1].left = new_node
         else:
-            stack[0].right = new_node
+            path[-1].right = new_node
 
-        for parent in stack:
-            parent.count += 1
+        self.root = self._update_path(path)
+
+    @staticmethod
+    def _update_path(path: List[Node]):
+        for root in reversed(path):
+            root.update()
+        return root
 
     def __contains__(self, key):
         try:
@@ -202,54 +208,64 @@ class BST:
         self.root, node_min = self.__delete_min(self.root)
         return node_min.key, node_min.value
 
-    @staticmethod
-    def __delete_min(root: Node):
+    @classmethod
+    def __delete_min(cls, root: Node):
         """
         删除以root为根的子树中的最小结点
+        返回新root和被删的node
         """
         if root is None:
             return None, None
         elif root.left is None:
             return root.right, root
 
-        stack = deque()
+        path = []
         cur = root
         while cur.left:
-            stack.appendleft(cur)
+            path.append(cur)
             cur = cur.left
 
-        stack[0].left = cur.right
-        for parent in stack:
-            parent.count -= 1
+        path[-1].left = cur.right
+        cls._update_path(path)
         return root, cur
 
     def __delitem__(self, key):
-        stack = deque()
+        path = []
         cur = self.root
-        while cur and cur.key != key:
-            stack.appendleft(cur)
+        while cur:
+            path.append(cur)
             if key < cur.key:
                 cur = cur.left
-            else:
+            elif key > cur.key:
                 cur = cur.right
-
-        if cur is None:
+            else:
+                path.pop()
+                break
+        else:
             raise KeyError(key)
 
-        new_right, tmp = self.__delete_min(cur.right)
-        if tmp:
-            tmp.left, tmp.right = cur.left, new_right
-
-        if cur is stack[0].left:
-            stack[0].left = tmp
+        if cur.left and cur.right:
+            # 如果左右孩子都有，则用后继代替自己，然后删除后继
+            new_right, root = self.__delete_min(cur.right)
+            root.left, root.right = cur.left, new_right
         else:
-            stack[0].right = tmp
+            # 如果只有一个子树，则用该子树替代自己
+            root = cur.left or cur.right
 
-        for parent in stack:
-            parent.count -= 1
+        if path:
+            # 如果路径不为空，则将新子树连接到父节点上
+            parent = path[-1]
+            if cur is parent.left:
+                parent.left = root
+            else:
+                parent.right = root
+
+        # 从新子树向上回溯并更新
+        path.append(root)
+        self.root = self._update_path(path)
 
     def __iter__(self):
-        def __iter(root: self.Node):
+        def __iter(root: BST.Node):
             """
             将以root为根的树按照中序遍历入队
             """
@@ -269,7 +285,7 @@ class BST:
 
         none_count = 0
 
-        def __draw_edge(node0: self.Node, node1: self.Node):
+        def __draw_edge(node0: BST.Node, node1: BST.Node):
             """
             画一条从node0到node1边
             """
@@ -282,7 +298,7 @@ class BST:
                 G.add_edge(node0.key, none_node)
                 none_count += 1
 
-        def __draw(root: self.Node):
+        def __draw(root: BST.Node):
             """
             画出以root为根的子树
             """
@@ -301,14 +317,16 @@ class BST:
 
 if __name__ == "__main__":
     st = BST()
-    for i, k in enumerate('SEXARCHM'):
+    for i, k in enumerate('HSEXARCMGZD'):
         st[k] = i
     for k in st:
         print(k, st[k])
-    print()
+    print('\n', len(st), '\n')
     print(*st['E':'X'], end='\n\n')
     print(st.floor('G'), st.floor('*'), st.ceiling('G'), end='\n\n')
     print(st.select(6), st.rank('H'))
     st.draw()
     del st['E']
     st.draw('bst1.png')
+    del st['H']
+    st.draw('bst2.png')
