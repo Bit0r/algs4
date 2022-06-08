@@ -50,17 +50,17 @@ class AVL(BST):
             if root.left.factor < 0:
                 # 将LR调整为LL
                 root.left = AVL.__rotate_left(root.left)
-            if root.left.factor >= 0:
-                # 调整LL平衡
-                root = AVL.__rotate_right(root)
+
+            # 调整LL平衡
+            root = AVL.__rotate_right(root)
         elif root.factor == -2:
             # R型树
             if root.right.factor > 0:
                 # 将RL调整为RR
                 root.right = AVL.__rotate_right(root.right)
-            if root.right.factor <= 0:
-                # 调整RR平衡
-                root = AVL.__rotate_left(root)
+
+            # 调整RR平衡
+            root = AVL.__rotate_left(root)
         return root
 
     @staticmethod
